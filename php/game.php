@@ -13,8 +13,8 @@ class Game {
 
     public function __construct($player1Name, $player2Name) {
         array_push($this->joueurs, 
-            new Player($player1Name ? $player1Name : "Whites", "White", $this),
-            new Player($player2Name ? $player2Name : "Blacks", "Black", $this)
+            new Player($player1Name ? $player1Name : "Whites", Player::$ColorWhites, $this),
+            new Player($player2Name ? $player2Name : "Blacks", Player::$ColorBlacks, $this)
         );
         
         $this->plate = new Plateau($this);

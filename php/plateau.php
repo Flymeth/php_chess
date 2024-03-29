@@ -77,6 +77,9 @@ class Plateau {
             for($dir_y = -1; $dir_y <= 1; $dir_y++) {
                 if(!($dir_x || $dir_y)) continue;
                 
+                /**
+                 * @var Piece|null
+                 */
                 $piece = null;
                 $decalage = 0;
                 while(!$piece) {
@@ -92,22 +95,24 @@ class Plateau {
                     !$contestedByPlayer
                     || $piece->joueur->color == $contestedByPlayer->color
                 )) {
-                    $coup = new Coup($mouvement->reversed(), $piece);
+                    $mouvement= $mouvement->reversed();
+                    $coup = new Coup($mouvement, $piece);
 
                     if(
                         (
-                            $piece->type == "D"
+                            $piece instanceof Dame
                         ) || (
-                            $piece->type == "T"
+                            $piece instanceof Tour
                             && Tour::validerMouvement($mouvement)
                         ) || (
-                            $piece->type == "F"
+                            $piece instanceof Fou
                             && Fou::validerMouvement($mouvement)
                         ) || (
-                            $piece->type == "P"
+                            $piece instanceof Pion
                             && Pion::validerMouvement($mouvement, $piece)
+                            && $piece->deplacementPossible($mouvement)
                         ) || (
-                            $piece->type == "R"
+                            $piece instanceof Roi
                             && Roi::validerMouvement($mouvement)
                         )
                     ) array_push($coups, $coup);
@@ -129,7 +134,7 @@ class Plateau {
                 $piece = $this->game->plate->getPieceAt($mouvement->end_position);
                 if(
                     $piece
-                    && $piece->type == "C"
+                    && $piece instanceof Cavalier
                     && (
                         !$contestedByPlayer
                         || $piece->joueur->color == $contestedByPlayer->color
@@ -141,7 +146,7 @@ class Plateau {
         return $coups;
     }
 
-    public function __toHtml() {
+    public function __write() {
         echo "<table><tbody>";
         
         foreach(array_reverse(str_split(Position::$vertical_axis)) as $y) {
@@ -152,8 +157,9 @@ class Plateau {
                 $piece= $this->getPieceAt($case);
                 echo 
                 "<td 
-                    data-colomn='{$x}' 
-                    data-case='{$case}'".
+                    data-column='$x'
+                    data-line='$y'
+                    data-case='$case'".
                     ($piece ? 
                         "
                         data-piece='{$piece->type}'

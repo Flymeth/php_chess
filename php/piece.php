@@ -65,7 +65,7 @@ class Pion extends Piece {
 
     static function validerMouvement(Mouvement $mouvement, Pion $pion) {
         $dir = $mouvement->get_directions();
-        $y_direction = $pion->joueur->color == "Black" ? -1 : 1;
+        $y_direction = $pion->joueur->color == Player::$ColorBlacks ? -1 : 1;
         if($dir[1] == 2 * $y_direction && !$pion->hasMoved) return $dir[0] == 0;
         if($dir[1] != $y_direction) return false;
 
@@ -73,17 +73,21 @@ class Pion extends Piece {
             $dir[0] >= -1 && $dir[0] <= 1
         );
     }
+
+    public function deplacementPossible(Mouvement $mouvement) {
+        $x_dir = $mouvement->get_directions()[0];
+        $piece = $this->plateau->getPieceAt($mouvement->end_position);
+        return $x_dir xor !$piece;
+    }
+
     public function execMouvement(Mouvement $mouvement) {
         if(!Pion::validerMouvement($mouvement, $this)) die("Invalid movement");
-        $dirs = $mouvement->get_directions();
-        $piece = $this->plateau->getPieceAt($mouvement->end_position);
-        if(!$dirs[0] && $piece) die("Cannot move forward for now.");
-        if($dirs[0] && !$piece) die("Invalid movement: there is no piece to eat.");
+        if(!$this->deplacementPossible($mouvement)) die("This move is not possible for now.");
         $this->move($mouvement);
         $this->hasMoved = true;
 
-        // Check if the piece as to transform to queen
-        $transform_y = $this->joueur->color == "Black" ? 0 : strlen(Position::$vertical_axis) -1;
+        // Check if the piece has to transform to queen
+        $transform_y = $this->joueur->color == Player::$ColorBlacks ? 0 : strlen(Position::$vertical_axis) -1;
         if($mouvement->end_position->get_y() == $transform_y) {
             $new_queen = new Dame($this->joueur, $this->position, $this->plateau, $this);
 
@@ -98,7 +102,7 @@ class Pion extends Piece {
     }
 
     public function __toString() {
-        return $this->joueur->color == "White" ? "♙" : "♟";
+        return $this->joueur->color == Player::$ColorWhites ? "♙" : "♟";
     }
 }
 class Tour extends Piece {
@@ -123,7 +127,7 @@ class Tour extends Piece {
     }
 
     public function __toString() {
-        return $this->joueur->color == "White" ? "♖" : "♜";
+        return $this->joueur->color == Player::$ColorWhites ? "♖" : "♜";
     }
 }
 class Cavalier extends Piece {
@@ -150,7 +154,7 @@ class Cavalier extends Piece {
     }
 
     public function __toString() {
-        return $this->joueur->color == "White" ? "♘" : "♞";
+        return $this->joueur->color == Player::$ColorWhites ? "♘" : "♞";
     }
 }
 class Fou extends Piece {
@@ -177,7 +181,7 @@ class Fou extends Piece {
     }
 
     public function __toString() {
-        return $this->joueur->color == "White" ? "♗" : "♝";
+        return $this->joueur->color == Player::$ColorWhites ? "♗" : "♝";
     }
 }
 class Dame extends Piece {
@@ -208,7 +212,7 @@ class Dame extends Piece {
     }
 
     public function __toString() {
-        return $this->joueur->color == "White" ? "♕" : "♛";
+        return $this->joueur->color == Player::$ColorWhites ? "♕" : "♛";
     }
 }
 class Roi extends Piece {
@@ -235,6 +239,6 @@ class Roi extends Piece {
     }
 
     public function __toString() {
-        return $this->joueur->color == "White" ? "♔" : "♚";
+        return $this->joueur->color == Player::$ColorWhites ? "♔" : "♚";
     }
 }

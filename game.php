@@ -5,11 +5,11 @@ $session_id = $_GET["session"];
 session_id($session_id);
 
 session_start();
+if(!isset($_SESSION["game"])) die("Invalid game id provided.");
 /**
  * @var Game
  */
 $game = $_SESSION["game"];
-if(empty($game)) die("Invalid game id provided.");
 $winner = $game->getWinner();
 
 ?>
@@ -55,7 +55,7 @@ $winner = $game->getWinner();
             <span id="message"></span>
         </div>
         <div class="right">
-            <?php echo $game->plate->__toHtml() ?>
+            <?php echo $game->plate->__write() ?>
         </div>
     </main>
 

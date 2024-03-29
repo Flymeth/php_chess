@@ -1,3 +1,7 @@
+:root {
+    --case-size: 50px;
+}
+
 main {
     height: 100vh;
     display: grid;
@@ -23,17 +27,15 @@ table {
     width: unset !important;
 }
 td {
-    height: 50px;
-    width: 50px;
+    height: var(--case-size);
+    width: var(--case-size);
     background-color: #ECECD1;
     text-align: center;
-    font-size: 35px;
+    font-size: calc(var(--case-size) / 1.5);
     user-select: none;
     position: relative;
     padding: 0 !important;
     border: none !important;
-}
-td {
     transition: .15s;
 }
 body.has-selected td, td[data-piece] {
@@ -42,16 +44,25 @@ body.has-selected td, td[data-piece] {
 body.has-selected td:not(.selected):hover {
     box-shadow: inset 0 0 0 2px black;
 }
+body:not(.has-selected) td[data-piece]:hover {
+    box-shadow: inset 0 0 0 2px lightskyblue;
+}
+
 td.selected {
     box-shadow: inset 0 0 0 2px red;
 }
-td::before {
-    content: attr(data-case);
+td::before, tr::before {
     position: absolute;
-    bottom: 5px;
-    left: 5px;
+    bottom: 5%;
+    left: 5%;
     font-size: 25%;
     color: black;
+}
+tr:last-of-type td::before {
+    content: attr(data-case);
+}
+tr:not(:last-of-type) td:first-of-type::before {
+    content: attr(data-case);
 }
 
 tr:nth-child(even) td:nth-child(odd) {

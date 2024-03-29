@@ -16,7 +16,7 @@
     <form action="/start.php" method="get">
         <h2>Setup de la partie</h2>
         <label for="white">
-            Nom des blancs (commencera la partie)
+            Nom des blancs (commenceront la partie)
             <input type="text" name="white" id="white" placeholder="Whites">
         </label>
         <label for="black">

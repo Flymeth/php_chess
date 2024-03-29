@@ -3,8 +3,14 @@ class Player {
     public $pions= array();
     public $moves= array();
 
-    public function __construct(readonly string $pseudo, readonly string $color, readonly Game $game) {
+    static $ColorBlacks = "Black";
+    static $ColorWhites = "White";
 
+    public function __construct(readonly string $pseudo, readonly string $color, readonly Game $game) {
+        if(!(
+            $color == Player::$ColorBlacks
+            || $color == Player::$ColorWhites
+        )) throw new InvalidArgumentException("The color isn't valid.");
     }
 
     /**
@@ -65,12 +71,12 @@ class Player {
         // We assume that the moved piece is the other player than this one
         // We assume that if this is false, the game is valid bc it has already checked the check mate
         if($piece->joueur->color == $this->color) return false;
-        
+
         /**
          * @var Position[]
          */
         $casesToCheck = [];
-        if($piece->type == "C" || $piece->type == "P") {
+        if($piece instanceof Cavalier || $piece instanceof Pion) {
             array_push($casesToCheck, $piece->position);
         }else {
             $movement = new Mouvement($piece->position, $king->position);

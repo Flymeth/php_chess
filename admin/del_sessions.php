@@ -16,6 +16,7 @@ if (ini_get("session.use_cookies")) {
         $params["secure"], $params["httponly"]
     );
 }
+
 // Completely destroy our server sessions..
 session_destroy();
 // Just in case.. swipe these values too
