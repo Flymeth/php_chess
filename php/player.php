@@ -29,7 +29,7 @@ class Player {
     public function isCheck() {
         $king = $this->getPiecesWithType("R")[0];
         if(!$king) die("Error: The king is missing!");
-        return $this->game->plate->isCaseContested($king->position, $this->getOpponent());
+        return !!sizeof($this->game->plate->isContested($king));
     }
 
     public function isCheckMate() {
@@ -53,8 +53,8 @@ class Player {
                     && $pieceOnTheCase->joueur->color == $this->color
                 ) continue;
 
-                $caseContested= $this->game->plate->isCaseContested($case, $this->getOpponent());
-                if(!$caseContested) return false;
+                $caseContested= $this->game->plate->isContested($case, $king->joueur->getOpponent());
+                if(!sizeof($caseContested)) return false;
             }
         }
 
@@ -75,34 +75,24 @@ class Player {
         }else {
             $movement = new Mouvement($piece->position, $king->position);
             [$dir_x, $dir_y] = $movement->get_directions();
+            [$sign_x, $sign_y]= [sign($dir_x), sign($dir_y)];
 
-            for($x = 0; abs($x) <= abs($dir_x); $x+= sign($dir_x)) {
-                for($y = 0; abs($y) <= abs($dir_y); $y+= sign($dir_y)) {
-                    array_push($casesToCheck, Position::fromCoordonate($x, $y));
-                }
+            $current_position= $piece->position->__clone();
+            while(!$current_position->isSame($king->position)) {
+                array_push($casesToCheck, $current_position->__clone());
+                $current_position->move($sign_x, $sign_y);
             }
         }
 
-        //todo Checker si ca peut etre bougé
         foreach ($casesToCheck as $case_position) {
-            /**
-             * @var Position[]
-             */
-            $alreadyChecked = [];
-            
-            $coup = false;
-            while($coup != null) {
-                $coup = $this->game->plate->isCaseContested($case_position, $king->joueur, ...$alreadyChecked);
-                if($coup) {
-                    if(
-                        !$this->game->plate->coupMakesCheck($coup)
-                    ) return false;
-                    
-                    array_push($alreadyChecked, $coup->piece->position);
-                }
+            $coups = $this->game->plate->isContested($case_position, $king->joueur);
+            foreach ($coups as $coup) {
+                if(
+                    !$this->game->plate->coupMakesCheck($coup)
+                ) return false;
             }
         }
-
+        
         return true;
     }
 

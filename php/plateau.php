@@ -40,7 +40,7 @@ class Plateau {
         if($eaten_piece) $eaten_piece->state = "ate";
         $piece->position->move(...$move->get_directions());
 
-        // We're checking if this move does a check
+        // We're checking if this move makes check
         $will_be_check = $piece->joueur->isCheck();
 
         // We cancel the move
@@ -51,16 +51,27 @@ class Plateau {
         return $will_be_check;
     }
 
-    private function isCaseExcluded(Position $case, Position ...$excludedCases) {
-        if(!$excludedCases) return false;
+    /**
+     * Checks if a case or a piece is contested
+     * If you give a piece, the function will check if the opponent can contests this piece.
+     * Else, it will check for both players if the case is contested
+     * 
+     * @param $forceByPlayer If you include this parameter, this function will check if the case/piece is contested by only this player
+     * @return Coup[]
+     */
+    public function isContested(Position | Piece $contester, Player | null $forceByPlayer = null) {
+        /**
+         * @var Coup[]
+         */
+        $coups = [];
 
-        foreach ($excludedCases as $excluded) {
-            if($case->isSame($excluded)) return true;
-        };
-        return false;
-    }
+        $contestedPiece = $contester instanceof Piece ? $contester : null;
+        $contestedByPlayer = $forceByPlayer ? $forceByPlayer : (
+            $contestedPiece ? $contestedPiece->joueur->getOpponent() : null
+        );
 
-    public function isCaseContested(Position $case, Player $byPlayer, Position ...$excludedCases) {
+        $contestedPosition= $contester instanceof Piece ? $contester->position->__clone() : $contester;
+
         // Checking everything exept bichops
         for($dir_x = -1; $dir_x <= 1; $dir_x++) {
             for($dir_y = -1; $dir_y <= 1; $dir_y++) {
@@ -71,38 +82,35 @@ class Plateau {
                 while(!$piece) {
                     $decalage++;
                     try {
-                        $mouvement = Mouvement::create($case, $dir_x * $decalage, $dir_y * $decalage);
+                        $mouvement = Mouvement::create($contestedPosition, $dir_x * $decalage, $dir_y * $decalage);
                     } catch (\Throwable $th) { break; }
                     
-                    if(
-                        !$this->isCaseExcluded($mouvement->end_position, ...$excludedCases)
-                    ) $piece = $this->game->plate->getPieceAt($mouvement->end_position);
+                    $piece = $this->game->plate->getPieceAt($mouvement->end_position);
                 }
 
-                if($piece && $piece->joueur->color == $byPlayer->color) {
+                if($piece && (
+                    !$contestedByPlayer
+                    || $piece->joueur->color == $contestedByPlayer->color
+                )) {
                     $coup = new Coup($mouvement->reversed(), $piece);
-                    
-                    if($piece->type == "D") return $coup;
-                    else if(
-                        $piece->type == "T"
-                        && ($dir_x == 0 || $dir_y == 0)
-                    ) return $coup;
-                    else if(
-                        $piece->type == "F"
-                        && $dir_x && $dir_y
-                    ) return $coup;
-                    else if(
-                        $piece->type == "P"
-                        && $decalage == 1
-                        && $dir_x
-                        && $dir_y == (
-                            $byPlayer->color == "Black" ? -1 : 1
+
+                    if(
+                        (
+                            $piece->type == "D"
+                        ) || (
+                            $piece->type == "T"
+                            && Tour::validerMouvement($mouvement)
+                        ) || (
+                            $piece->type == "F"
+                            && Fou::validerMouvement($mouvement)
+                        ) || (
+                            $piece->type == "P"
+                            && Pion::validerMouvement($mouvement, $piece)
+                        ) || (
+                            $piece->type == "R"
+                            && Roi::validerMouvement($mouvement)
                         )
-                    ) return $coup;
-                    else if(
-                        $piece->type == "R"
-                        && $decalage == 1
-                    ) return $coup;
+                    ) array_push($coups, $coup);
                 }
             }
         }
@@ -115,20 +123,22 @@ class Plateau {
                 )) continue;
                 
                 try {
-                    $mouvement = Mouvement::create($case, $dir_x, $dir_y);
+                    $mouvement = Mouvement::create($contestedPosition, $dir_x, $dir_y);
                 } catch (\Throwable $th) { continue; }
                 
                 $piece = $this->game->plate->getPieceAt($mouvement->end_position);
                 if(
                     $piece
-                    && !$this->isCaseExcluded($piece->position, ...$excludedCases)
                     && $piece->type == "C"
-                    && $piece->joueur->color == $byPlayer->color
-                ) return new Coup($mouvement->reversed(), $piece);
+                    && (
+                        !$contestedByPlayer
+                        || $piece->joueur->color == $contestedByPlayer->color
+                    )
+                ) array_push($coups, new Coup($mouvement->reversed(), $piece));
             }
         }
 
-        return null;
+        return $coups;
     }
 
     public function __toHtml() {

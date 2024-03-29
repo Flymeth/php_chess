@@ -6,7 +6,8 @@ class Piece {
     }
 
     protected function move(Mouvement $mouvement) {
-        if($this->plateau->game->getWinner()) die("The game is ended.");
+        $this->plateau->game->updateWinner();
+        if($this->plateau->game->getWinner()) die("The game has ended.");
 
         $piece_at_final_case = $this->plateau->getPieceAt($mouvement->end_position);
         if($piece_at_final_case) {
@@ -62,18 +63,18 @@ class Pion extends Piece {
         );
     }
 
-    private function validerMouvement(Mouvement $mouvement) {
+    static function validerMouvement(Mouvement $mouvement, Pion $pion) {
         $dir = $mouvement->get_directions();
-        $y_direction = $this->joueur->color == "Black" ? -1 : 1;
-        if($dir[1] == 2 * $y_direction && !$this->hasMoved) return $dir[0] == 0;
-
+        $y_direction = $pion->joueur->color == "Black" ? -1 : 1;
+        if($dir[1] == 2 * $y_direction && !$pion->hasMoved) return $dir[0] == 0;
         if($dir[1] != $y_direction) return false;
+
         return (
             $dir[0] >= -1 && $dir[0] <= 1
         );
     }
     public function execMouvement(Mouvement $mouvement) {
-        if(!$this->validerMouvement($mouvement)) die("Invalid movement");
+        if(!Pion::validerMouvement($mouvement, $this)) die("Invalid movement");
         $dirs = $mouvement->get_directions();
         $piece = $this->plateau->getPieceAt($mouvement->end_position);
         if(!$dirs[0] && $piece) die("Cannot move forward for now.");
@@ -110,13 +111,13 @@ class Tour extends Piece {
         );
     }
 
-    private function validerMouvement(Mouvement $mouvement) {
+    static function validerMouvement(Mouvement $mouvement) {
         $dir = $mouvement->get_directions();
         return $dir[0] == 0 || $dir[1] == 0;
     }
 
     public function execMouvement(Mouvement $mouvement) {
-        if(!$this->validerMouvement($mouvement)) die("Invalid mouvement");
+        if(!Tour::validerMouvement($mouvement)) die("Invalid mouvement");
         if($this->isJumpingOverPieces($mouvement)) die("Cannot jump over pieces!");
         $this->move($mouvement);
     }
@@ -135,7 +136,7 @@ class Cavalier extends Piece {
         );
     }
 
-    private function validerMouvement(Mouvement $mouvement) {
+    static function validerMouvement(Mouvement $mouvement) {
         $dir = $mouvement->get_directions();
         if($dir[1] == 0) return false;
 
@@ -144,7 +145,7 @@ class Cavalier extends Piece {
     }
 
     public function execMouvement(Mouvement $mouvement) {
-        if(!$this->validerMouvement($mouvement)) die("Invalid mouvement");
+        if(!Cavalier::validerMouvement($mouvement)) die("Invalid mouvement");
         $this->move($mouvement);
     }
 
@@ -161,7 +162,7 @@ class Fou extends Piece {
             $plateau
         );
     }
-    private function validerMouvement(Mouvement $mouvement) {
+    static function validerMouvement(Mouvement $mouvement) {
         $dir = $mouvement->get_directions();
         if($dir[1] == 0) return false;
 
@@ -170,7 +171,7 @@ class Fou extends Piece {
     }
 
     public function execMouvement(Mouvement $mouvement) {
-        if(!$this->validerMouvement($mouvement)) die("Invalid mouvement");
+        if(!Fou::validerMouvement($mouvement)) die("Invalid mouvement");
         if($this->isJumpingOverPieces($mouvement)) die("Cannot jump over pieces!");
         $this->move($mouvement);
     }
@@ -189,7 +190,7 @@ class Dame extends Piece {
         );
     }
 
-    private function validerMouvement(Mouvement $mouvement) {
+    static function validerMouvement(Mouvement $mouvement) {
         $dir = $mouvement->get_directions();
         if(
             $dir[0] == 0
@@ -201,7 +202,7 @@ class Dame extends Piece {
     }
 
     public function execMouvement(Mouvement $mouvement) {
-        if(!$this->validerMouvement($mouvement)) die("Invalid mouvement");
+        if(!Dame::validerMouvement($mouvement)) die("Invalid mouvement");
         if($this->isJumpingOverPieces($mouvement)) die("Cannot jump over pieces!");
         $this->move($mouvement);
     }
@@ -220,7 +221,7 @@ class Roi extends Piece {
         );
     }
 
-    private function validerMouvement(Mouvement $mouvement) {
+    static function validerMouvement(Mouvement $mouvement) {
         $dir = $mouvement->get_directions();
         return (
             $dir[0] >= -1 && $dir[0] <= 1
@@ -229,7 +230,7 @@ class Roi extends Piece {
     }
 
     public function execMouvement(Mouvement $mouvement) {
-        if(!$this->validerMouvement($mouvement)) die("Invalid mouvement");
+        if(!Roi::validerMouvement($mouvement)) die("Invalid mouvement");
         $this->move($mouvement);
     }
 

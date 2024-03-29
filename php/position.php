@@ -13,9 +13,14 @@ class Position {
             array("a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7"),
         ),
     );
-    public function __construct(private $position = "a1") {}
+    public function __construct(private $position = "a1") {
+        if(
+            $this->get_x() === false
+            || $this->get_y() === false
+        ) throw new ValueError("$position is not a valid position.");
+    }
     static function fromCoordonate(int $x, int $y) {
-        $horizontal = Position::$vertical_axis[$x];
+        $horizontal = Position::$horizontal_axis[$x];
         $vertical = Position::$vertical_axis[$y];
         return new Position($horizontal.$vertical);
     }
