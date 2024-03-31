@@ -38,13 +38,13 @@ td {
     border: none !important;
     transition: .15s;
 }
-body.has-selected td, td[data-piece] {
+body[data-winner=""].has-selected td, body[data-winner=""] td[data-piece] {
     cursor: pointer;
 }
-body.has-selected td:not(.selected):hover {
+body[data-winner=""].has-selected td:not(.selected):hover {
     box-shadow: inset 0 0 0 2px black;
 }
-body:not(.has-selected) td[data-piece]:hover {
+body[data-winner=""]:not(.has-selected) td[data-piece]:hover {
     box-shadow: inset 0 0 0 2px lightskyblue;
 }
 

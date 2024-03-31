@@ -23,7 +23,7 @@ $winner = $game->getWinner();
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/game.css">
 </head>
-<body>
+<body data-winner="<?php echo $winner?->pseudo ?>">
     <div id="loader"></div>
     <main>
         <div class="left">
@@ -59,6 +59,8 @@ $winner = $game->getWinner();
         </div>
     </main>
 
-    <script src="./js/game.js"></script>
+    <?php if(!$winner): ?>
+        <script src="./js/game.js"></script>
+    <?php endif ?>
 </body>
 </html>
