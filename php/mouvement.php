@@ -6,8 +6,8 @@ class Mouvement {
         return new Mouvement($current_position, $p2);
     }
     public function __construct(readonly Position $start_position, readonly Position $end_position) {
-            $dir = $this->get_directions();
-        if($dir[0] == 0 && $dir[1] == 0) die("Empty movement given");
+        $dir = $this->get_directions();
+        if(!($dir[0] || $dir[1])) die("Empty movement given");
     }
 
     public function get_directions() {

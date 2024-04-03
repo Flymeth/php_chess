@@ -46,7 +46,7 @@ class Player {
         if(!$king) die("Error: The king is missing!");
         for($dir_x = -1; $dir_x <= 1; $dir_x++) {
             for($dir_y = -1; $dir_y <= 1; $dir_y++) {
-                if($dir_x == 0 && $dir_y == 0) continue;
+                if(!($dir_x || $dir_y)) continue;
 
                 $case = $king->position->__clone();
                 try {
@@ -60,7 +60,10 @@ class Player {
                 ) continue;
 
                 $caseContested= $this->game->plate->isContested($case, $king->joueur->getOpponent());
-                if(!sizeof($caseContested)) return false;
+                if(!(
+                    sizeof($caseContested)
+                    || $this->game->plate->coupMakesCheck(new Coup(new Mouvement($king->position->__clone(), $case), $king))
+                )) return false;
             }
         }
 
