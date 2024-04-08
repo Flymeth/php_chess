@@ -1,7 +1,9 @@
 <?php
 class Player {
+    /**
+     * @var Piece[]
+     */
     public $pions= array();
-    public $moves= array();
 
     static $ColorBlacks = "Black";
     static $ColorWhites = "White";
@@ -24,6 +26,32 @@ class Player {
             }
         }
         return $pieces;
+    }
+
+    /**
+     * @return Piece[]
+     */
+    public function getPiecesWithState(string $state) {
+        $pieces = array();
+        foreach($this->pions as $pion) {
+            if($pion->state == $state) {
+                array_push($pieces, $pion);
+            }
+        }
+        return $pieces;
+    }
+    
+    /**
+     * @return Coup[]
+     */
+    public function getMoves() {
+        $coups = array();
+        foreach($this->game->coups as $coup) {
+            if($coup->piece->joueur->color == $this->color) {
+                array_push($coups, $coup);
+            }
+        }
+        return $coups;
     }
 
     public function getOpponent() {

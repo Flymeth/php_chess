@@ -5,9 +5,11 @@ class Plateau {
      */
     public $pions = array();
 
-    public function __construct(public Game $game) {
+    public function __construct(public Game $game, private string $pieceDir = "top") {
         for($i = 0; $i <= 1; $i++) {
-            $joueur = $game->joueurs[$i];
+            $joueur = $game->getPlayer([
+                Player::$ColorWhites, Player::$ColorBlacks
+            ][$i]);
 
             // Positionnement des pions
             foreach(Position::$STARTING_POSITIONS["pion"][$i] as $pos) array_push($this->pions, new Pion($joueur, $pos, $this));
@@ -149,14 +151,38 @@ class Plateau {
     public function __write() {
         echo "<table><tbody>";
         
-        foreach(array_reverse(str_split(Position::$vertical_axis)) as $y) {
+        $rows = str_split(Position::$vertical_axis);
+
+        $reverse_rows = $this->pieceDir == "white_bottom" ? false : $this->pieceDir == "white_top" || (
+            (
+                $this->game->nextPlayingPlayer()->color == Player::$ColorWhites
+            ) == (
+                $this->pieceDir == "top"
+            )
+        );
+        if($reverse_rows) $rows = array_reverse($rows);
+
+        $last_key = array_key_last($this->game->coups);
+        $last_coup = is_null($last_key) ? null : $this->game->coups[$last_key];
+
+        foreach($rows as $y) {
             echo "<tr data-row='{$y}'>";
 
-            foreach(str_split(Position::$horizontal_axis) as $x) {
+            $colomns = str_split(Position::$horizontal_axis);
+            if(!$reverse_rows) $colomns = array_reverse($colomns);
+
+            foreach($colomns as $x) {
                 $case = $x.$y;
                 $piece= $this->getPieceAt($case);
                 echo 
                 "<td 
+                    data-moved='".((
+                        $last_coup
+                        && (
+                            $last_coup->movement->start_position->isSame($case)
+                            || $last_coup->movement->end_position->isSame($case)
+                        )
+                    ) ? "yes" : "no")."'
                     data-column='$x'
                     data-line='$y'
                     data-case='$case'".

@@ -55,7 +55,29 @@ $winner = $game->getWinner();
             <span id="message"></span>
         </div>
         <div class="right">
-            <?php echo $game->plate->__write() ?>
+            <section id="game">
+                <section class="eaten_piece" id="eaten_white_pieces">
+                    <ul>
+                        <?php 
+                            foreach($game->getPlayer(Player::$ColorWhites)->getPiecesWithState("eaten") as $piece) {
+                                echo "<li>".$piece->__toString()."</li>";
+                            }
+                        ?>
+                    </ul>
+                </section>
+
+                <?php echo $game->plate->__write() ?>
+
+                <section class="eaten_piece" id="eaten_black_pieces">
+                    <ul>
+                        <?php 
+                            foreach($game->getPlayer(Player::$ColorBlacks)->getPiecesWithState("eaten") as $piece) {
+                                echo "<li>".$piece->__toString()."</li>";
+                            }
+                        ?>
+                    </ul>
+                </section>
+            </section>
         </div>
     </main>
 

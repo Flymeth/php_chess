@@ -12,7 +12,7 @@ class Piece {
         $piece_at_final_case = $this->plateau->getPieceAt($mouvement->end_position);
         if($piece_at_final_case) {
             if($piece_at_final_case->joueur->color == $this->joueur->color) die("You cannot eat one of your piece.");
-            $piece_at_final_case->state = "ate";
+            $piece_at_final_case->state = "eaten";
         }
         $this->position->move(...$mouvement->get_directions());
 
@@ -24,11 +24,8 @@ class Piece {
             die("Invalid move: you're in check!");
         }
 
-        array_push($this->joueur->moves, $mouvement);
-        array_push(
-            $this->plateau->game->coups, 
-            new Coup($mouvement, $this)
-        );
+        $coup = new Coup($mouvement, $this);
+        array_push($this->plateau->game->coups, $coup);
         $this->plateau->game->updateWinner();
     }
 
@@ -49,7 +46,7 @@ class Piece {
     }
 
     public function __toString() {
-        return "".$this->state."".$this->joueur;
+        die("This piece is undefined");
     }
 }
 
