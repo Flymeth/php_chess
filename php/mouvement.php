@@ -43,9 +43,9 @@ class Mouvement {
     }
 }
 class Coup {
-    readonly Piece | null $ate;
+    readonly Piece | null $eaten;
     public function __construct(readonly Mouvement $movement, readonly Piece $piece) {
-        $this->ate = $piece->plateau->getPieceAt($movement->end_position);
+        $this->eaten = $piece->plateau->getPieceAt($movement->end_position);
     }
 
     public function __toString() {

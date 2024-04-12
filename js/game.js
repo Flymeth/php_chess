@@ -42,10 +42,13 @@ cases.forEach((element) => {
             else {
                 loader.classList.add("active")
 
-                const isValid = await fetch(`/move.php?data=${JSON.stringify({
-                    from: selected.getAttribute("data-case"),
-                    to: caseID
-                })}&session=${session}`).then(r => r.text());
+                const isValid = await fetch(encodeURI(
+                `/move.php?from=${
+                    selected.getAttribute("data-case")
+                }&to=${
+                    caseID
+                }&session=${session}`
+                )).then(r => r.text());
                 if(isValid === "true") return document.location.reload()
                 else {
                     message.innerText = "Mouvement impossible: " + isValid

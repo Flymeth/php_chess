@@ -6,7 +6,6 @@ class Piece {
     }
 
     protected function move(Mouvement $mouvement) {
-        $this->plateau->game->updateWinner();
         if($this->plateau->game->getWinner()) die("The game has ended.");
 
         $piece_at_final_case = $this->plateau->getPieceAt($mouvement->end_position);
@@ -14,17 +13,13 @@ class Piece {
             if($piece_at_final_case->joueur->color == $this->joueur->color) die("You cannot eat one of your piece.");
             $piece_at_final_case->state = "eaten";
         }
-        $this->position->move(...$mouvement->get_directions());
-
-        if($this->joueur->isCheck()) {
-            $this->position->move(...$mouvement->reversed()->get_directions());
-            if($piece_at_final_case) $piece_at_final_case->state = "alive";
-
-            $this->plateau->game->updateWinner();
-            die("Invalid move: you're in check!");
-        }
-
+        
         $coup = new Coup($mouvement, $this);
+        if($this->plateau->coupMakesCheck($coup)) die("Invalid move: you're in check!");
+        
+        if($coup->eaten) $coup->eaten->state = "eaten";
+        $this->position->move(...$coup->movement->get_directions());
+
         array_push($this->plateau->game->coups, $coup);
         $this->plateau->game->updateWinner();
     }

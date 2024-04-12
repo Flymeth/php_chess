@@ -36,10 +36,10 @@ class Plateau {
     public function coupMakesCheck(Coup $coup) {
         $move = $coup->movement;
         $piece= $coup->piece;
-        $eaten_piece = $coup->ate;
+        $eaten_piece = $coup->eaten;
 
         // We pre-execute the move
-        if($eaten_piece) $eaten_piece->state = "ate";
+        if($eaten_piece) $eaten_piece->state = "eaten";
         $piece->position->move(...$move->get_directions());
 
         // We're checking if this move makes check
